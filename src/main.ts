@@ -8,7 +8,7 @@ interface ActionInputs {
     listGlobOptions: glob.GlobOptions
     initval?: string
     filter?: string
-    filterInPlace?: boolean
+    inPlace?: boolean
     outFormat?: string
     result: string
     delta: string
@@ -31,19 +31,19 @@ function parseInputs(): ActionInputs {
     const filter: string = core.getInput('filter')
     if (filter) result.filter = filter
 
-    const filterInPlace: string = core.getInput('filterInPlace')
+    const filterInPlace: string = core.getInput('inPlace')
     if (filterInPlace && filterInPlace.toLocaleUpperCase() !== 'FALSE')
-        result.filterInPlace = true
+        result.inPlace = true
 
     const outFormat: string = core.getInput('outFormat')
     if (outFormat) result.outFormat = outFormat
 
     if (
-        result.filterInPlace &&
+        result.inPlace &&
         (result.delta || result.result || result.initval)
     ) {
         core.warning(
-            'filterInPlace input set: delta, result and initval inputs are ignored'
+            'inPlace input set: delta, result and initval inputs are ignored'
         )
     }
 
@@ -63,7 +63,7 @@ async function run(): Promise<void> {
             filters = await urlfilters.read(inputs.filter)
         }
 
-        if (!inputs.filterInPlace) {
+        if (!inputs.inPlace) {
             let delta: string[] = []
 
             // load the initial list if present

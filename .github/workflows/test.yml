@@ -41,7 +41,7 @@ jobs:
       - uses: ./
         with:
           list: "./temp/list*.*"
-          filterInPlace: "yes"
+          inPlace: "yes"
           filter: "./__tests__/blocklist.filter"
       - name: check results
         run: |
