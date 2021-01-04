@@ -62,17 +62,15 @@ function parseInputs() {
     const filter = core.getInput('filter');
     if (filter)
         result.filter = filter;
-    const filterInPlace = core.getInput('filterInPlace');
+    const filterInPlace = core.getInput('inPlace');
     if (filterInPlace && filterInPlace.toLocaleUpperCase() !== 'FALSE')
-        result.filterInPlace = true;
+        result.inPlace = true;
     const outFormat = core.getInput('outFormat');
     if (outFormat)
         result.outFormat = outFormat;
-    if (result.filterInPlace &&
-        (result.delta || result.result || result.initval)) {
-        core.warning('filterInPlace input set: delta, result and initval inputs are ignored');
+    if (result.inPlace && (result.delta || result.result || result.initval)) {
+        core.warning('inPlace input set: delta, result and initval inputs are ignored');
     }
-    core.info(`Inputs: ${result}`);
     return result;
 }
 function run() {
@@ -86,7 +84,7 @@ function run() {
                 core.info(`Loading filter entries from ${inputs.filter}...`);
                 filters = yield urlfilters.read(inputs.filter);
             }
-            if (!inputs.filterInPlace) {
+            if (!inputs.inPlace) {
                 let delta = [];
                 // load the initial list if present
                 const initialList = [];

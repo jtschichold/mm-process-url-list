@@ -38,16 +38,11 @@ function parseInputs(): ActionInputs {
     const outFormat: string = core.getInput('outFormat')
     if (outFormat) result.outFormat = outFormat
 
-    if (
-        result.inPlace &&
-        (result.delta || result.result || result.initval)
-    ) {
+    if (result.inPlace && (result.delta || result.result || result.initval)) {
         core.warning(
             'inPlace input set: delta, result and initval inputs are ignored'
         )
     }
-
-    core.info(`Inputs: ${result}`)
 
     return result
 }
