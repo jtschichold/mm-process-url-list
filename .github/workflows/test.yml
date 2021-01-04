@@ -1,0 +1,49 @@
+name: 'build-test'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - name: create temp dir
+        run: mkdir -p ./temp
+      - run: |
+          npm run all
+  test1: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create temp dir
+        run: mkdir -p ./temp
+      - uses: ./
+        with:
+          list: "./__tests__/list*.*"
+          result: "./temp/test1.result"
+          delta: "./temp/test1.delta"
+      - name: check results
+        run: diff --strip-trailing-cr ./temp/test1.delta ./__tests__/test1-delta.result
+  test2: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create temp dir & copy files
+        run: |
+          mkdir -p ./temp
+          cp ./__tests__/list*.* ./temp
+      - uses: ./
+        with:
+          list: "./temp/list*.*"
+          filterInPlace: "yes"
+          filter: "./__tests__/blocklist.filter"
+      - name: check results
+        run: |
+          diff ./__tests__/test2-list1.result ./temp/list1.list
+          diff ./__tests__/test2-list2.result ./temp/list2.json

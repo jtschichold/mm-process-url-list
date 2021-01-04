@@ -1,0 +1,37 @@
+name: mm-process-url-list
+description: Aggregate and collapse lists of URLs
+author: Luigi Mori
+inputs:
+  list:
+    required: true
+    description: filenames of lists to aggregate (using glob)
+  followSymbolicLinks:
+    required: false
+    description: 'Indicates whether to follow symbolic links'
+    default: true
+  initval:
+    required: false
+    description: filename of the list to aggregate list to
+  filter:
+    required: false
+    description: filename of the list to be used to filter entries out
+  outFormat:
+    required: false
+    description: output format for the result list
+  inPlace:
+    required: false
+    description: if set, files matching list pattern are filtered & transformed in place and not aggregated
+  result:
+    required: false
+    description: filename to store result into
+  delta:
+    required: false
+    description: filename to store filtered entries
+outputs:
+  result:
+    description: the filename with the resulting list
+  delta:
+    description: the filename with the filtered entries
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
