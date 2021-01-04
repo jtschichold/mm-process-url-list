@@ -10,7 +10,7 @@ test('test read', async () => {
         count += 1
     }
 
-    expect(count).toBe(5)
+    expect(count).toBe(6)
 })
 
 test('test collapsing 1', () => {
