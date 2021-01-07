@@ -2,6 +2,63 @@ require('./sourcemap-register.js');module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 451:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.outputFormats = void 0;
+const panos_1 = __webpack_require__(342);
+exports.outputFormats = Object.assign({}, panos_1.format);
+
+
+/***/ }),
+
+/***/ 342:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.format = void 0;
+function sanitizeToken(t, wildcard) {
+    return t.match(/^[^*^]*$/) ? t : wildcard;
+}
+function panosURL(list) {
+    const result = [];
+    for (const entry of list) {
+        let newEntry = entry.replace(/^\w+:\/\//, ''); // remove protocol
+        newEntry = newEntry.replace(/^([-a-zA-Z0-9.]+)(?::[0-9]+)*/, '$1'); // remove port
+        let currentToken = '';
+        let sanitizedNewEntry = '';
+        for (const c of newEntry) {
+            if ('./?&=;+'.includes(c)) {
+                sanitizedNewEntry += sanitizeToken(currentToken, '*');
+                sanitizedNewEntry += c;
+                currentToken = '';
+                continue;
+            }
+            currentToken += c;
+        }
+        if (currentToken !== '') {
+            sanitizedNewEntry += sanitizeToken(currentToken, '*');
+        }
+        if (sanitizedNewEntry.match(/^[-a-zA-Z0-9.*^]+$/)) {
+            // fqdn with no path
+            sanitizedNewEntry += '/'; // add / at the end
+        }
+        result.push(sanitizedNewEntry);
+    }
+    return result;
+}
+exports.format = {
+    PANOSURL: panosURL
+};
+
+
+/***/ }),
+
 /***/ 109:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -47,6 +104,7 @@ const core = __importStar(__webpack_require__(186));
 const glob = __importStar(__webpack_require__(90));
 const urlfilters = __importStar(__webpack_require__(780));
 const urllist = __importStar(__webpack_require__(9));
+const formats = __importStar(__webpack_require__(451));
 function parseInputs() {
     const result = {
         list: core.getInput('list', { required: true }),
@@ -66,8 +124,12 @@ function parseInputs() {
     if (filterInPlace && filterInPlace.toLocaleUpperCase() !== 'FALSE')
         result.inPlace = true;
     const outFormat = core.getInput('outFormat');
-    if (outFormat)
-        result.outFormat = outFormat;
+    if (outFormat) {
+        result.outFormat = formats.outputFormats[outFormat];
+        if (!result.outFormat) {
+            throw new Error(`Unknown output format: ${outFormat}`);
+        }
+    }
     if (result.inPlace && (result.delta || result.result || result.initval)) {
         core.warning('inPlace input set: delta, result and initval inputs are ignored');
     }
@@ -133,8 +195,13 @@ function run() {
                     finally { if (e_2) throw e_2.error; }
                 }
                 // aggregate the list
+                let result = initialList;
+                if (inputs.outFormat) {
+                    core.info('Transforming the list...');
+                    result = inputs.outFormat(result);
+                }
                 core.info('Aggregating and collapsing the list...');
-                let result = urllist.collapse(initialList);
+                result = urllist.collapse(result);
                 // let's filter (if needed)
                 if (filters.length !== 0) {
                     let fdelta;
@@ -174,7 +241,11 @@ function run() {
                             }
                             finally { if (e_5) throw e_5.error; }
                         }
-                        let result = urllist.collapse(currentList);
+                        let result = currentList;
+                        if (inputs.outFormat) {
+                            result = inputs.outFormat(result);
+                        }
+                        result = urllist.collapse(result);
                         // let's filter (if needed)
                         if (filters.length !== 0) {
                             let delta;

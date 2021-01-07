@@ -17,7 +17,7 @@ jobs:
         run: mkdir -p ./temp
       - run: |
           npm run all
-  test1: # make sure the action works on a clean machine without building
+  test-aggregation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
           delta: "./temp/test1.delta"
       - name: check results
         run: diff --strip-trailing-cr ./temp/test1.delta ./__tests__/test1-delta.result
-  test2: # make sure the action works on a clean machine without building
+  test-inplace:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -47,3 +47,20 @@ jobs:
         run: |
           diff ./__tests__/test2-list1.result ./temp/list1.list
           diff ./__tests__/test2-list2.result ./temp/list2.json
+  test-formats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create temp dir & copy files
+        run: |
+          mkdir -p ./temp
+          cp ./__tests__/format-test*.* ./temp
+      - uses: ./
+        with:
+          list: "./temp/format-test*.*"
+          inPlace: "yes"
+          filter: "./__tests__/format-panos.filter"
+          outFormat: "PANOSURL"
+      - name: check results
+        run: |
+          diff ./__tests__/format-test1-panos.result ./temp/format-test1.json

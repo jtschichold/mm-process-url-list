@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import * as urlfilters from './urlfilters'
 import * as urllist from './urllist'
+import * as formats from './formats'
 
 interface ActionInputs {
     list: string
@@ -9,7 +10,7 @@ interface ActionInputs {
     initval?: string
     filter?: string
     inPlace?: boolean
-    outFormat?: string
+    outFormat?: formats.OutputFormatMapper
     result: string
     delta: string
 }
@@ -36,7 +37,12 @@ function parseInputs(): ActionInputs {
         result.inPlace = true
 
     const outFormat: string = core.getInput('outFormat')
-    if (outFormat) result.outFormat = outFormat
+    if (outFormat) {
+        result.outFormat = formats.outputFormats[outFormat]
+        if (!result.outFormat) {
+            throw new Error(`Unknown output format: ${outFormat}`)
+        }
+    }
 
     if (result.inPlace && (result.delta || result.result || result.initval)) {
         core.warning(
@@ -85,8 +91,13 @@ async function run(): Promise<void> {
             }
 
             // aggregate the list
+            let result: string[] = initialList
+            if (inputs.outFormat) {
+                core.info('Transforming the list...')
+                result = inputs.outFormat(result)
+            }
             core.info('Aggregating and collapsing the list...')
-            let result = urllist.collapse(initialList)
+            result = urllist.collapse(result)
 
             // let's filter (if needed)
             if (filters.length !== 0) {
@@ -122,7 +133,11 @@ async function run(): Promise<void> {
                     currentList.push(nentry)
                 }
 
-                let result = urllist.collapse(currentList)
+                let result: string[] = currentList
+                if (inputs.outFormat) {
+                    result = inputs.outFormat(result)
+                }
+                result = urllist.collapse(result)
 
                 // let's filter (if needed)
                 if (filters.length !== 0) {
