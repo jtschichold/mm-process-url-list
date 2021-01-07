@@ -54,10 +54,10 @@ jobs:
       - name: create temp dir & copy files
         run: |
           mkdir -p ./temp
-          cp ./__tests__/format-test*.* ./temp
+          cp ./__tests__/format-test?.* ./temp
       - uses: ./
         with:
-          list: "./temp/format-test*.*"
+          list: "./temp/format-test?.*"
           inPlace: "yes"
           filter: "./__tests__/format-panos.filter"
           outFormat: "PANOSURL"
