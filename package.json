@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jtschichold/mm-process-ip-list"
+    "url": "git+https://github.com/jtschichold/mm-process-url-list"
   },
   "bugs": {
-    "url": "https://github.com/jtschichold/mm-process-ip-list/issues"
+    "url": "https://github.com/jtschichold/mm-process-url-list/issues"
   },
-  "homepage": "https://github.com/jtschichold/mm-process-ip-list#readme",
+  "homepage": "https://github.com/jtschichold/mm-process-url-list#readme",
   "keywords": [
     "actions",
     "node",
@@ -29,11 +29,10 @@
   ],
   "author": "Luigi Mori",
   "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/glob": "^0.1.1"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/glob": "^0.1.1",
     "@types/ip-address": "^7.0.0",
     "@types/jest": "^26.0.19",
     "@types/jsbn": "^1.2.29",
